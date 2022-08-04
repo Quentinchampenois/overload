@@ -5,14 +5,13 @@ fn main() {
 
     let contents = fs::read_to_string(filename);
     match contents {
-        Ok(_) => {
-            println!("File found !");
-        },
         Err(e) => {
             println!("Error while reading file '{}' : {}", filename, e);
             std::process::exit(1);
         }
+        _ => {}
     }
 
+    println!("{}", contents.unwrap());
     std::process::exit(0);
 }
