@@ -50,7 +50,7 @@ fn main() {
         let output = Command::new("git")
         .arg("log")
         .arg("-n 1")
-        .arg("--pretty=format:'%C(auto)%h - %s, %as'")
+        .arg("--pretty=format:[%C(auto)%h] :: %as :: %an - %s")
         .arg("--")
         .arg(&target)
         .output()
