@@ -3,11 +3,35 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::process::Command;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Commit {
     hash: String,
     title: String,
     files: Vec<String>
+}
+impl Commit {
+    fn add(&mut self, filename: String) {
+        &self.files.push(filename);
+    }
+}
+
+#[derive(Debug)]
+struct Commits {
+    commits: Vec<Commit>
+}
+impl Commits {
+    fn find_by(&self, hash: String) -> Option<&Commit> {
+        for commit in self.commits.iter() {
+            if commit.hash == hash {
+                return Some(commit);
+            }
+        }
+        None
+    }
+
+    fn add(&mut self, commit: Commit) {
+        &self.commits.push(commit);
+    }
 }
 
 fn ignored_overloads(filename: &str) -> Vec<String> {
@@ -49,7 +73,10 @@ fn main() {
 
     println!("{:?}", overloads);
 
-    let mut commits : Vec<Commit> = Vec::new();
+    let mut commits : Commits = Commits {
+        commits: vec![]
+    };
+
     for overload in overloads {
         let target = overload;
         let output = Command::new("git")
@@ -69,11 +96,27 @@ fn main() {
             continue;
         }
 
-        commits.push(Commit {
-            hash: String::from(vec[0]),
-            title: String::from(vec[vec.len() -1]),
-            files: vec![String::from(&target)]
-        });
+        let mut found = false;
+        /*
+        for mut commit in &commits {
+            if commit.hash == String::from(vec[0]) {
+                found = true;
+                if !commit.files.contains(&target) {
+                    commit.add(String::from("toborop"));
+                    clone_commits.push(*commit);
+                    println!("File {} found !", &target);
+                }
+            }
+        }
+        */
+        if !found {
+            commits.add(Commit {
+                hash: String::from(vec[0]),
+                title: String::from(vec[vec.len() -1]),
+                files: vec![String::from(&target)]
+            });
+        }
+
 
         let title = format!("{:?}
         * {}", commit_msg, &target);
