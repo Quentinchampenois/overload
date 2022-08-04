@@ -3,6 +3,13 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::process::Command;
 
+#[derive(Debug)]
+struct Commit {
+    hash: String,
+    title: String,
+    files: Vec<String>
+}
+
 fn ignored_overloads(filename: &str) -> Vec<String> {
     let file = File::open(filename);
     if let Err(e) = file {
@@ -45,6 +52,7 @@ fn main() {
 
     println!("{:?}", overloads);
 
+    let mut commits : Vec<Commit> = Vec::new();
     for overload in overloads {
         let target = overload;
         let output = Command::new("git")
@@ -57,12 +65,23 @@ fn main() {
         .expect("failed to execute process");
 
         let commit_msg = std::str::from_utf8(&output.stdout).unwrap();
+
+        // Continue if file isn't in Git history
         if commit_msg == "" {
             continue;
         }
+
+        commits.push(Commit {
+            hash: String::from("1111"),
+            title: String::from("Dummy title"),
+            files: vec![String::from("filename")]
+        });
+
         let title = format!("{:?}
         * {}", commit_msg, &target);
         println!("{}", title);
     }
+
+    println!("{:?}", commits);
     std::process::exit(0);
 }
