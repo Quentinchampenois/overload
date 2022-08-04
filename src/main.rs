@@ -10,8 +10,8 @@ fn main() {
     // Retrieve exclude file mentioned in '.overloadignore'
     let excluded = fss::lines_to_vec(".overloadignore");
     let mut overloads : Vec<String> = Vec::new();
-    println!("{:?}", excluded);
 
+    // Read files in top-level tree
     let target_dir = match fs::read_dir("./") {
         Ok(file) => file,
         Err(e) => {

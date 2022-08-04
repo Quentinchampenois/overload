@@ -1,8 +1,8 @@
 #[derive(Clone, Debug)]
 pub struct Commit {
-    hash: String,
-    title: String,
-    files: Vec<String>
+    pub hash: String,
+    pub title: String,
+    pub files: Vec<String>
 }
 
 impl Commit {
@@ -13,7 +13,7 @@ impl Commit {
 
 #[derive(Debug)]
 pub struct Commits {
-    commits: Vec<Commit>
+    pub commits: Vec<Commit>
 }
 
 impl Commits {
