@@ -60,7 +60,9 @@ fn main() {
         if commit_msg == "" {
             continue;
         }
-        println!("{} - {:?}", &target, commit_msg);
+        let title = format!("{:?}
+        * {}", commit_msg, &target);
+        println!("{}", title);
     }
     std::process::exit(0);
 }
