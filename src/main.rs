@@ -9,7 +9,10 @@ fn main() {
             println!("File found !");
         },
         Err(e) => {
-            println!("Error while reader file '{}' : {}", filename, e);
+            println!("Error while reading file '{}' : {}", filename, e);
+            std::process::exit(1);
         }
     }
+
+    std::process::exit(0);
 }
