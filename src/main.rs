@@ -1,50 +1,10 @@
+pub mod commit;
+
 use std::fs;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::process::Command;
-
-#[derive(Clone, Debug)]
-struct Commit {
-    hash: String,
-    title: String,
-    files: Vec<String>
-}
-impl Commit {
-    fn add(&mut self, filename: &String) {
-        &self.files.push(filename.to_string());
-    }
-}
-
-#[derive(Debug)]
-struct Commits {
-    commits: Vec<Commit>
-}
-impl Commits {
-    fn find_by(&self, hash: String) -> Option<Commit> {
-        for mut commit in self.commits.iter() {
-            if commit.hash == hash {
-                return Some(commit.clone());
-            }
-        }
-        None
-    }
-
-    fn update(self, hash: String, filename: &String) -> bool {
-        for mut commit in self.commits.iter() {
-            if commit.hash == hash {
-                commit.add(filename);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    fn add(&mut self, commit: Commit) {
-        &self.commits.push(commit);
-    }
-}
-
+use commit::{Commits, Commit};
 fn ignored_overloads(filename: &str) -> Vec<String> {
     let file = File::open(filename);
     if let Err(e) = file {
