@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-pub fn excluded_overloads(filename: &str) -> Vec<String> {
+pub fn lines_to_vec(filename: &str) -> Vec<String> {
     let file = File::open(filename);
     if let Err(e) = file {
         println!("Error while reading file '{}' : {}", filename, e);

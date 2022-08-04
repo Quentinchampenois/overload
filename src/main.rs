@@ -7,7 +7,8 @@ use commit::{Commits, Commit};
 use filesystem as fss;
 
 fn main() {
-    let excluded = fss::excluded_overloads(".overloadignore");
+    // Retrieve exclude file mentioned in '.overloadignore'
+    let excluded = fss::lines_to_vec(".overloadignore");
     let mut overloads : Vec<String> = Vec::new();
     println!("{:?}", excluded);
 
