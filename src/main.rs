@@ -1,27 +1,15 @@
-pub mod commit;
+mod commit;
+mod filesystem;
 
 use std::fs;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::process::Command;
 use commit::{Commits, Commit};
-fn ignored_overloads(filename: &str) -> Vec<String> {
-    let file = File::open(filename);
-    if let Err(e) = file {
-        println!("Error while reading file '{}' : {}", filename, e);
-        std::process::exit(1);
-    }
-
-    let reader = BufReader::new(file.unwrap());
-    reader.lines()
-        .map(|l| l.expect("Could not parse line"))
-        .collect::<Vec<String>>()
-}
+use filesystem as fss;
 
 fn main() {
-    let ignored_files = ignored_overloads(".overloadignore");
+    let excluded = fss::excluded_overloads(".overloadignore");
     let mut overloads : Vec<String> = Vec::new();
-    println!("{:?}", ignored_files);
+    println!("{:?}", excluded);
 
     let target_dir = match fs::read_dir("./") {
         Ok(file) => file,
@@ -36,7 +24,7 @@ fn main() {
         if unwrap.file_name() == "." || unwrap.file_name() == ".." || unwrap.file_name() == ".overloadignore" {
             continue;
         }
-        if ignored_files.contains(&unwrap.file_name().into_string().unwrap()) {
+        if excluded.contains(&unwrap.file_name().into_string().unwrap()) {
             continue;
         }
         overloads.push(unwrap.file_name().into_string().unwrap());
