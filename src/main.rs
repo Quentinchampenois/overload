@@ -1,3 +1,15 @@
+use std::fs;
+
 fn main() {
-    println!("Hello, world!");
+    let filename = ".overloadignore";
+
+    let contents = fs::read_to_string(filename);
+    match contents {
+        Ok(_) => {
+            println!("File found !");
+        },
+        Err(e) => {
+            println!("Error while reader file '{}' : {}", filename, e);
+        }
+    }
 }
