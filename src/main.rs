@@ -46,21 +46,21 @@ fn main() {
     println!("{:?}", overloads);
 
     for overload in overloads {
+        let target = overload;
         let output = Command::new("git")
         .arg("log")
         .arg("-n 1")
         .arg("--pretty=format:'%C(auto)%h - %s, %as'")
         .arg("--")
-        .arg(overload)
+        .arg(&target)
         .output()
         .expect("failed to execute process");
 
         let commit_msg = std::str::from_utf8(&output.stdout).unwrap();
-
         if commit_msg == "" {
             continue;
         }
-        println!("{:?}", commit_msg);
+        println!("{} - {:?}", &target, commit_msg);
     }
     std::process::exit(0);
 }
