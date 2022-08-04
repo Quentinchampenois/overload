@@ -38,15 +38,12 @@ fn main() {
 
     for file in target_dir {
         let unwrap = file.unwrap();
-
         if unwrap.file_name() == "." || unwrap.file_name() == ".." || unwrap.file_name() == ".overloadignore" {
             continue;
         }
-
         if ignored_files.contains(&unwrap.file_name().into_string().unwrap()) {
             continue;
         }
-
         overloads.push(unwrap.file_name().into_string().unwrap());
     }
 
@@ -58,13 +55,14 @@ fn main() {
         let output = Command::new("git")
         .arg("log")
         .arg("-n 1")
-        .arg("--pretty=format:[%C(auto)%h] :: %as :: %an - %s")
+        .arg("--pretty=format:%C(auto)%h :: %as :: %an :: %s")
         .arg("--")
         .arg(&target)
         .output()
         .expect("failed to execute process");
 
         let commit_msg = std::str::from_utf8(&output.stdout).unwrap();
+        let vec: Vec<&str> = commit_msg.split("::").collect();
 
         // Continue if file isn't in Git history
         if commit_msg == "" {
@@ -72,9 +70,9 @@ fn main() {
         }
 
         commits.push(Commit {
-            hash: String::from("1111"),
-            title: String::from("Dummy title"),
-            files: vec![String::from("filename")]
+            hash: String::from(vec[0]),
+            title: String::from(vec[vec.len() -1]),
+            files: vec![String::from(&target)]
         });
 
         let title = format!("{:?}
