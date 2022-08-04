@@ -10,8 +10,8 @@ struct Commit {
     files: Vec<String>
 }
 impl Commit {
-    fn add(&mut self, filename: String) {
-        &self.files.push(filename);
+    fn add(&mut self, filename: &String) {
+        &self.files.push(filename.to_string());
     }
 }
 
@@ -20,13 +20,24 @@ struct Commits {
     commits: Vec<Commit>
 }
 impl Commits {
-    fn find_by(&self, hash: String) -> Option<&Commit> {
-        for commit in self.commits.iter() {
+    fn find_by(&self, hash: String) -> Option<Commit> {
+        for mut commit in self.commits.iter() {
             if commit.hash == hash {
-                return Some(commit);
+                return Some(commit.clone());
             }
         }
         None
+    }
+
+    fn update(self, hash: String, filename: &String) -> bool {
+        for mut commit in self.commits.iter() {
+            if commit.hash == hash {
+                commit.add(filename);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     fn add(&mut self, commit: Commit) {
@@ -97,18 +108,9 @@ fn main() {
         }
 
         let mut found = false;
-        /*
-        for mut commit in &commits {
-            if commit.hash == String::from(vec[0]) {
-                found = true;
-                if !commit.files.contains(&target) {
-                    commit.add(String::from("toborop"));
-                    clone_commits.push(*commit);
-                    println!("File {} found !", &target);
-                }
-            }
-        }
-        */
+
+        commits.update(String::from(vec[0]), &target);
+
         if !found {
             commits.add(Commit {
                 hash: String::from(vec[0]),
