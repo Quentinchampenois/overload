@@ -7,34 +7,43 @@ use commit::{Commits, Commit};
 use filesystem as fss;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
+use walkdir::{DirEntry, WalkDir};
+
+fn is_hidden(entry: &DirEntry, excluded: Vec<String>) -> bool {
+    entry.file_name()
+        .to_str()
+        .map(|s| excluded.contains(&String::from(s)))
+        .unwrap_or(false)
+}
 
 fn main() {
     // Retrieve exclude file mentioned in '.overloadignore'
-    let excluded = fss::lines_to_vec(".overloadignore");
+    let mut excluded = fss::lines_to_vec(".overloadignore");
+    excluded.append(&mut vec![
+        String::from("."),
+        String::from(".."),
+        String::from(".git"),
+        String::from(".idea"),
+        String::from("OVERLOADS.md"),
+        String::from("packages"),
+        String::from("public"),
+        String::from("tmp"),
+        String::from("vendor"),
+        String::from("docs"),
+        String::from("deploy/providers"),
+    ]);
+
     let mut overloads : Vec<String> = Vec::new();
     let mut file = fss::find_or_create_file("OVERLOADS.md");
     let mut commits : Commits = Commits {
         commits: vec![]
     };
 
-    // Read files in top-level tree
-    let target_dir = match fs::read_dir("./") {
-        Ok(file) => file,
-        Err(e) => {
-            println!("Unexpected error : {:?}", e);
-            std::process::exit(1);
-        }
-    };
+    let walker = WalkDir::new(".").into_iter();
+    for entry in walker.filter_entry(|e| !is_hidden(e, excluded.clone())) {
+        let entry = entry.unwrap();
 
-    for file in target_dir {
-        let unwrap = file.unwrap();
-        if unwrap.file_name() == "." || unwrap.file_name() == ".." || unwrap.file_name() == ".overloadignore" {
-            continue;
-        }
-        if excluded.contains(&unwrap.file_name().into_string().unwrap()) {
-            continue;
-        }
-        overloads.push(unwrap.file_name().into_string().unwrap());
+        overloads.push(entry.file_name().to_string_lossy().parse().unwrap());
     }
 
     for overload in overloads {
@@ -52,9 +61,7 @@ fn main() {
         let vec: Vec<&str> = commit_msg.split("::").collect();
 
         // Continue if file isn't in Git history
-        if commit_msg == "" {
-            continue;
-        }
+        if commit_msg == "" { continue; }
 
         commits.add(Commit {
             hash: String::from(vec[0].trim()),
@@ -70,7 +77,7 @@ fn main() {
         let mut commit_clone = commit.clone();
         let s_slice: &str = &commit_clone.hash[..];
 
-        if buffer_reader.contains(s_slice) == true {
+        if buffer_reader.contains(s_slice) {
             continue;
         }
 
