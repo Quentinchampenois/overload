@@ -71,20 +71,18 @@ fn main() {
     let mut buffer_reader = String::new();
     file.read_to_string(&mut buffer_reader);
 
-    println!("{:?}", commits.commits.clone());
     for commit in commits.commits.clone() {
-        println!("WTFF");
         let mut commit_clone = commit.clone();
         let s_slice: &str = &commit_clone.hash[..];
+        let display_by_hash = commits.display_by_hash(commit_clone.hash.clone());
+        let s_display_slice: &str = &display_by_hash[..];
 
-        println!("{}", buffer_reader.contains(s_slice));
-        if buffer_reader.contains(s_slice) {
-            continue;
-        }
+        if buffer_reader.contains(s_slice) { continue; }
+        buffer_reader.push_str(s_display_slice);
+    }
 
-        if let Err(e) = writeln!(file, "{}", commits.display_by_hash(commit_clone.hash.clone())) {
-            eprintln!("Couldn't write to file: {}", e);
-        }
+    if let Err(e) = writeln!(file, "{}", buffer_reader) {
+        eprintln!("Couldn't write in file: {}", e);
     }
 
     std::process::exit(0);
