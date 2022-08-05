@@ -96,9 +96,8 @@ fn main() {
     if overload_content == buffer_reader {
         println!("No extra overloads detected");
     } else {
-        println!("{}", overload_content);
-        println!("{}", buffer_reader);
-        if let Err(e) = write!(overload_file, "{}", buffer_reader) {
+        overload_file.set_len(0);
+        if let Err(e) = overload_file.write(buffer_reader.as_ref()) {
             eprintln!("Couldn't write in file: {}", e);
         }
         println!("File 'OVERLOADS.md' successfully updated !");
