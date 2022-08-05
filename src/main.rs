@@ -12,11 +12,7 @@ fn main() {
     // Retrieve exclude file mentioned in '.overloadignore'
     let excluded = fss::lines_to_vec(".overloadignore");
     let mut overloads : Vec<String> = Vec::new();
-    let mut file = std::fs::OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open("OVERLOADS.md")
-        .expect("File 'OVERLOADS.md' doesn't exist");
+    let mut file = fss::find_or_create_file("OVERLOADS.md");
     let mut commits : Commits = Commits {
         commits: vec![]
     };

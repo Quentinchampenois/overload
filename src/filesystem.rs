@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, ErrorKind};
 
 pub fn lines_to_vec(filename: &str) -> Vec<String> {
     let file = File::open(filename);
@@ -12,4 +12,19 @@ pub fn lines_to_vec(filename: &str) -> Vec<String> {
     reader.lines()
         .map(|l| l.expect("Could not parse line"))
         .collect::<Vec<String>>()
+}
+
+pub fn find_or_create_file(filename: &str) -> File {
+    std::fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open("OVERLOADS.md").unwrap_or_else(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            File::create(filename).unwrap_or_else(|error| {
+                panic!("Problem creating the file: {:?}", error);
+            })
+        } else {
+            panic!("Problem opening the file: {:?}", error);
+        }
+    })
 }
