@@ -17,15 +17,7 @@ pub fn lines_to_vec(filename: &str) -> Vec<String> {
 pub fn find_or_create_file(filename: &str) -> File {
     std::fs::OpenOptions::new()
         .read(true)
+        .create(true)
         .write(true)
-        .append(true)
-        .open("OVERLOADS.md").unwrap_or_else(|error| {
-        if error.kind() == ErrorKind::NotFound {
-            File::create(filename).unwrap_or_else(|error| {
-                panic!("Problem creating the file: {:?}", error);
-            })
-        } else {
-            panic!("Problem opening the file: {:?}", error);
-        }
-    })
+        .open("OVERLOADS.md").unwrap()
 }

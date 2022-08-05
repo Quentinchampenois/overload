@@ -60,10 +60,7 @@ fn main() {
     }
 
     let mut overload_file = fss::find_or_create_file("OVERLOADS.md");
-
     let mut buffer_reader = String::new();
-    overload_file.read_to_string(&mut buffer_reader);
-    let mut clone_buf_reader = buffer_reader.clone();
 
     for path in dir_files {
         let output = Command::new("git")
@@ -87,62 +84,13 @@ fn main() {
             path: String::from(&path),
         };
 
-        println!("buf reader contains {} ? {}", &commit.path, clone_buf_reader.contains(&commit.path));
-        if clone_buf_reader.contains(&commit.path) { continue; }
-        clone_buf_reader.push_str(&*commit.format());
-        println!("buf updated {} ? {}", &commit.path, clone_buf_reader.contains(&commit.path));
+        if buffer_reader.contains(&commit.path) { continue; }
+        buffer_reader.push_str(&*commit.format());
     }
 
-    if buffer_reader != clone_buf_reader {
-        println!("buffer differents");
-        if let Err(e) = writeln!(overload_file, "{}", clone_buf_reader) {
-            eprintln!("Couldn't write in file: {}", e);
-        }
-    }
-
-
-    /*
-    for overload in overloads {
-        let target = overload;
-        let output = Command::new("git")
-        .arg("log")
-        .arg("-n 1")
-        .arg("--pretty=format:%C(auto)%h :: %as :: %an :: %s")
-        .arg("--")
-        .arg(&target)
-        .output()
-        .expect("failed to execute process");
-
-        let commit_msg = std::str::from_utf8(&output.stdout).unwrap();
-        let vec: Vec<&str> = commit_msg.split("::").collect();
-
-        // Continue if file isn't in Git history
-        if commit_msg == "" { continue; }
-
-        commits.add(Commit {
-            hash: String::from(vec[0].trim()),
-            title: String::from(vec[vec.len() - 1].trim()),
-            filename: String::from(&target),
-        })
-    }
-
-    let mut buffer_reader = String::new();
-    file.read_to_string(&mut buffer_reader);
-
-    for commit in commits.commits.clone() {
-        let mut commit_clone = commit.clone();
-        let s_slice: &str = &commit_clone.hash[..];
-        let display_by_hash = commits.display_by_hash(commit_clone.hash.clone());
-        let s_display_slice: &str = &display_by_hash[..];
-
-        if buffer_reader.contains(s_slice) { continue; }
-        buffer_reader.push_str(s_display_slice);
-    }
-
-    if let Err(e) = writeln!(file, "{}", buffer_reader) {
+    if let Err(e) = write!(overload_file, "{}", buffer_reader) {
         eprintln!("Couldn't write in file: {}", e);
     }
 
-     */
     std::process::exit(0);
 }
