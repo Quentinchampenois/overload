@@ -27,6 +27,9 @@ fn remove_path_prefix(entry: &DirEntry) -> String {
 }
 
 fn main() {
+
+    println!("Starting overloads generation...");
+    println!("[NOTE] - OVERLOADS.md will be overwritten, do not edit manually, your changes will be lost");
     // Retrieve exclude file mentioned in '.overloadignore'
     let mut excluded = fss::lines_to_vec(".overloadignore");
     excluded.append(&mut vec![String::from(".git"),
@@ -60,6 +63,8 @@ fn main() {
     }
 
     let mut overload_file = fss::find_or_create_file("OVERLOADS.md");
+    let mut overload_content = String::new();
+    overload_file.read_to_string(&mut overload_content);
     let mut buffer_reader = String::new();
 
     for path in dir_files {
@@ -88,9 +93,17 @@ fn main() {
         buffer_reader.push_str(&*commit.format());
     }
 
-    if let Err(e) = write!(overload_file, "{}", buffer_reader) {
-        eprintln!("Couldn't write in file: {}", e);
+    if overload_content == buffer_reader {
+        println!("No extra overloads detected");
+    } else {
+        println!("{}", overload_content);
+        println!("{}", buffer_reader);
+        if let Err(e) = write!(overload_file, "{}", buffer_reader) {
+            eprintln!("Couldn't write in file: {}", e);
+        }
+        println!("File 'OVERLOADS.md' successfully updated !");
     }
 
+    println!("End of process.");
     std::process::exit(0);
 }
