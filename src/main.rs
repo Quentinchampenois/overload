@@ -1,6 +1,7 @@
 mod commit;
 mod filesystem;
 
+use std::collections::HashSet;
 use std::fs;
 use std::process::Command;
 use commit::{Commits, Commit};
@@ -10,15 +11,56 @@ use std::io::prelude::*;
 use walkdir::{DirEntry, WalkDir};
 
 fn is_hidden(entry: &DirEntry, excluded: Vec<String>) -> bool {
+    if entry.file_name() == "." {
+        return false;
+    }
+
     entry.file_name()
         .to_str()
-        .map(|s| excluded.contains(&String::from(s)))
+        .map(|s| excluded.contains(&remove_path_prefix(&entry)))
         .unwrap_or(false)
+}
+
+fn remove_path_prefix(entry: &DirEntry) -> String {
+    let entry_path = entry.path().to_str().unwrap();
+    String::from(&entry_path[2..entry_path.len()])
 }
 
 fn main() {
     // Retrieve exclude file mentioned in '.overloadignore'
     let mut excluded = fss::lines_to_vec(".overloadignore");
+    excluded.append(&mut vec![String::from(".git"),
+                              String::from("target"),
+                              String::from(".idea"),
+                              String::from(".git"),
+                              String::from(".idea"),
+                              String::from("OVERLOADS.md"),
+                              String::from("packages"),
+                              String::from("public"),
+                              String::from("tmp"),
+                              String::from("vendor"),
+                              String::from("docs"),
+                              String::from("deploy/providers"),
+                              String::from("node_modules"),
+                              String::from("app/controllers")
+    ]);
+    let mut dir_files : Vec<String> = vec![];
+
+    let walker = WalkDir::new(".").into_iter();
+    for entry in walker.filter_entry(|e| !is_hidden(e, excluded.clone())) {
+        let entry = entry.unwrap();
+        // Reject all folders name
+        if entry.metadata().unwrap().is_dir() { continue; }
+
+        let entry_path = remove_path_prefix(&entry);
+        // Reject current folder
+        if entry_path == "." { continue; }
+        // Remove './' at the beginning of file
+        dir_files.push(entry_path);
+    }
+
+    println!("{:?}", dir_files);
+    /*
     excluded.append(&mut vec![
         String::from(".git"),
         String::from(".idea"),
@@ -84,6 +126,6 @@ fn main() {
     if let Err(e) = writeln!(file, "{}", buffer_reader) {
         eprintln!("Couldn't write in file: {}", e);
     }
-
+*/
     std::process::exit(0);
 }
