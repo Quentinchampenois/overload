@@ -10,6 +10,9 @@ fn main() {
     // Retrieve exclude file mentioned in '.overloadignore'
     let excluded = fss::lines_to_vec(".overloadignore");
     let mut overloads : Vec<String> = Vec::new();
+    let mut commits : Commits = Commits {
+        commits: vec![]
+    };
 
     // Read files in top-level tree
     let target_dir = match fs::read_dir("./") {
@@ -31,12 +34,6 @@ fn main() {
         overloads.push(unwrap.file_name().into_string().unwrap());
     }
 
-    println!("{:?}", overloads);
-
-    let mut commits : Commits = Commits {
-        commits: vec![]
-    };
-
     for overload in overloads {
         let target = overload;
         let output = Command::new("git")
@@ -56,24 +53,14 @@ fn main() {
             continue;
         }
 
-        let mut found = false;
-
-        commits.update(String::from(vec[0]), &target);
-
-        if !found {
-            commits.add(Commit {
-                hash: String::from(vec[0]),
-                title: String::from(vec[vec.len() -1]),
-                files: vec![String::from(&target)]
-            });
-        }
-
-
-        let title = format!("{:?}
-        * {}", commit_msg, &target);
-        println!("{}", title);
+        commits.add(Commit {
+            hash: String::from(vec[0].trim()),
+            title: String::from(vec[vec.len() - 1].trim()),
+            filename: String::from(&target),
+        })
     }
 
     println!("{:?}", commits);
+    println!("{:?}", commits.commits.sort_by(|a, b| a.partial_cmp(b).unwrap()));
     std::process::exit(0);
 }
