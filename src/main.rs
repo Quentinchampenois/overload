@@ -61,6 +61,13 @@ fn main() {
     }
 
     println!("{:?}", commits);
-    println!("{:?}", commits.commits.sort_by(|a, b| a.partial_cmp(b).unwrap()));
+    let mut commits_vec = commits.commits.clone();
+
+    for commit in commits_vec {
+        let mut commit_clone = commit.clone();
+        println!("{:?}", commits.display_by_hash(commit_clone.hash));
+    }
+
+
     std::process::exit(0);
 }
