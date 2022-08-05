@@ -5,11 +5,18 @@ use std::fs;
 use std::process::Command;
 use commit::{Commits, Commit};
 use filesystem as fss;
+use std::fs::OpenOptions;
+use std::io::prelude::*;
 
 fn main() {
     // Retrieve exclude file mentioned in '.overloadignore'
     let excluded = fss::lines_to_vec(".overloadignore");
     let mut overloads : Vec<String> = Vec::new();
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open("OVERLOADS.md")
+        .expect("File 'OVERLOADS.md' doesn't exist");
     let mut commits : Commits = Commits {
         commits: vec![]
     };
@@ -60,14 +67,15 @@ fn main() {
         })
     }
 
-    println!("{:?}", commits);
     let mut commits_vec = commits.commits.clone();
 
     for commit in commits_vec {
         let mut commit_clone = commit.clone();
-        println!("{:?}", commits.display_by_hash(commit_clone.hash));
-    }
 
+        if let Err(e) = writeln!(file, "{}", commits.display_by_hash(commit_clone.hash)) {
+            eprintln!("Couldn't write to file: {}", e);
+        }
+    }
 
     std::process::exit(0);
 }
