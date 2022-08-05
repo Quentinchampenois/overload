@@ -96,7 +96,9 @@ fn main() {
     if overload_content == buffer_reader {
         println!("No extra overloads detected");
     } else {
-        overload_file.set_len(1);
+        fs::remove_file("OVERLOADS.md");
+        let mut overload_file = fss::find_or_create_file("OVERLOADS.md");
+
         if let Err(e) = overload_file.write(buffer_reader.as_ref()) {
             eprintln!("Couldn't write in file: {}", e);
         }
