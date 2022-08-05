@@ -20,8 +20,6 @@ fn main() {
     // Retrieve exclude file mentioned in '.overloadignore'
     let mut excluded = fss::lines_to_vec(".overloadignore");
     excluded.append(&mut vec![
-        String::from("."),
-        String::from(".."),
         String::from(".git"),
         String::from(".idea"),
         String::from("OVERLOADS.md"),
@@ -33,17 +31,17 @@ fn main() {
         String::from("deploy/providers"),
     ]);
 
-    let mut overloads : Vec<String> = Vec::new();
     let mut file = fss::find_or_create_file("OVERLOADS.md");
-    let mut commits : Commits = Commits {
-        commits: vec![]
-    };
+    let mut commits : Commits = Commits { commits: vec![] };
+    let mut overloads : Vec<String> = Vec::new();
 
     let walker = WalkDir::new(".").into_iter();
     for entry in walker.filter_entry(|e| !is_hidden(e, excluded.clone())) {
         let entry = entry.unwrap();
+        let filename = entry.file_name().to_string_lossy().parse().unwrap();
+        if filename == "." || filename == ".." { continue; }
 
-        overloads.push(entry.file_name().to_string_lossy().parse().unwrap());
+        overloads.push(filename);
     }
 
     for overload in overloads {
@@ -73,10 +71,13 @@ fn main() {
     let mut buffer_reader = String::new();
     file.read_to_string(&mut buffer_reader);
 
+    println!("{:?}", commits.commits.clone());
     for commit in commits.commits.clone() {
+        println!("WTFF");
         let mut commit_clone = commit.clone();
         let s_slice: &str = &commit_clone.hash[..];
 
+        println!("{}", buffer_reader.contains(s_slice));
         if buffer_reader.contains(s_slice) {
             continue;
         }
