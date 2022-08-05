@@ -7,10 +7,9 @@ pub struct Commit {
 
 impl Commit {
     pub fn format(&self) -> String {
-        format!("* __{} - {}__
+        format!(" * __{} - {}__
 
     ` {} `
-
 ", self.hash, self.title, self.path).to_string()
     }
 }
