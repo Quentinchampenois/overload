@@ -38,7 +38,7 @@ impl Commits {
 
     pub fn format_display(&self, commits: Vec<Commit>) -> String {
         let mut result : String = format!("
-{} - {}", commits[0].hash, commits[0].title).to_string();
+### {} - {}", commits[0].hash, commits[0].title).to_string();
         for commit in commits {
             let mut format = format!("
 * {}", commit.filename);

@@ -63,12 +63,18 @@ fn main() {
         })
     }
 
-    let mut commits_vec = commits.commits.clone();
+    let mut buffer_reader = String::new();
+    file.read_to_string(&mut buffer_reader);
 
-    for commit in commits_vec {
+    for commit in commits.commits.clone() {
         let mut commit_clone = commit.clone();
+        let s_slice: &str = &commit_clone.hash[..];
 
-        if let Err(e) = writeln!(file, "{}", commits.display_by_hash(commit_clone.hash)) {
+        if buffer_reader.contains(s_slice) == true {
+            continue;
+        }
+
+        if let Err(e) = writeln!(file, "{}", commits.display_by_hash(commit_clone.hash.clone())) {
             eprintln!("Couldn't write to file: {}", e);
         }
     }

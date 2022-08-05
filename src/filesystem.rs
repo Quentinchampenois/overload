@@ -16,6 +16,7 @@ pub fn lines_to_vec(filename: &str) -> Vec<String> {
 
 pub fn find_or_create_file(filename: &str) -> File {
     std::fs::OpenOptions::new()
+        .read(true)
         .write(true)
         .append(true)
         .open("OVERLOADS.md").unwrap_or_else(|error| {
